@@ -1,7 +1,7 @@
-from expressions import Polynomial
+import expressions
 
 
-class NumInfinite(Polynomial):
+class NumInfinite(expressions.Polynomial):
     # Number is:
     # sum(coefs[i] * inf**(i+offset))
 

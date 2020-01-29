@@ -19,7 +19,9 @@ def derive_x(expr, x, give_partial = False):
 def derive_f(expr, give_partial = False):
 
     left = expr.insert('x', Expression('x', '+', NumInfinite('1@')))
+    res = ((left - expr) * NumInfinite('1I')).simplify()
+
     if not give_partial:
-        return ((left - expr) * NumInfinite('1I')).__float__()
+        return res.castfloat()
     else:
-        return (left - expr) * NumInfinite('1I')
+        return res

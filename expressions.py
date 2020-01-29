@@ -1,4 +1,11 @@
 
+def is_num(x):
+    if type(x) in [int, float]:
+        return True
+    if hasattr(x, '__int__') and hasattr(x, '__float__'):
+        return True
+    return False
+
 class Polynomial:
     def __init__(self, q = 0):
         if type(q) in [float, int]:
@@ -210,10 +217,10 @@ class Expression:
     def copy(self):
         'Deep copy of this object'
         a = self.a
-        if hasattr(a, 'copy')
+        if hasattr(a, 'copy'):
             a = a.copy()
         b = self.b
-        if hasattr(b, 'copy')
+        if hasattr(b, 'copy'):
             b = b.copy()
         return self.__class__(a, self.op, b)
     def __add__(self, b):
@@ -242,16 +249,99 @@ class Expression:
         return Expression(b, '^', self)
     def __neg__(self):
         return Expression(self, '-')
-    def __int__(self):
+    def floor(self):
         return Expression(self, 'floor')
-    def __float__(self):
+    def castfloat(self):
         return Expression(self, 'float')
     def __str__(self):
         if self.b == None:
+            if self.op == 'literal':
+                return str(self.a)
             return self.op + str(self.a)
         else:
             return '(' + str(self.a) + self.op + str(self.b) + ')'
     def simplify(self, gen_num = False):
-        if is_num(self.a) and is_num(self.b):
+        a = self.a
+        b = self.b
+        if isinstance(a, Expression):
+            a = a.simplify(True)
+        if isinstance(b, Expression):
+            b = b.simplify(True)
+        if is_num(a) and is_num(b):
             if gen_num:
-                return 
+                return self.evaluate()
+            else:
+                return self.__class__(self.evaluate(), 'literal')
+
+        if self.op == '^':
+            # Power rules
+            if b == 0:
+                if gen_num:
+                    return 1
+                else:
+                    return self.__class__(1, 'literal')
+            elif b == 1:
+                if gen_num or not is_num(b):
+                    return b
+                else:
+                    return self.__class__(b, 'literal')
+        elif self.op == '*':
+            # Multiplication rules
+            if b == 0 or a == 0:
+                if gen_num:
+                    return 0
+                else:
+                    return self.__class__(0, 'literal')
+            elif b == 1:
+                if gen_num or not is_num(a):
+                    return a
+                else:
+                    return self.__class__(a, 'literal')
+            elif a == 1:
+                if gen_num or not is_num(b):
+                    return b
+                else:
+                    return self.__class__(b, 'literal')
+        elif self.op == '+':
+            # Addition rules
+            if b == 1:
+                if gen_num or not is_num(a):
+                    return a
+                else:
+                    return self.__class__(a, 'literal')
+            elif a == 1:
+                if gen_num or not is_num(b):
+                    return b
+                else:
+                    return self.__class__(b, 'literal')
+        elif self.op == '-':
+            # Subtraction rules
+            if b == 1:
+                if gen_num or not is_num(a):
+                    return a
+                else:
+                    return self.__class__(a, 'literal')
+            elif a == 1:
+                if gen_num or not is_num(b):
+                    return b
+                else:
+                    return self.__class__(b, 'literal')
+        elif self.op == '/':
+            # Division rules
+            if a == 0:
+                if gen_num:
+                    return 0
+                else:
+                    return self.__class__(0, 'literal')
+            elif b == 1:
+                if gen_num or not is_num(a):
+                    return a
+                else:
+                    return self.__class__(a, 'literal')
+
+        
+        # Generate final output
+        if a != self.a or b != self.b:
+            return self.__class__(a, self.op, b)
+        else:
+            return self
