@@ -253,6 +253,12 @@ class Expression:
         return Expression(self, 'floor')
     def castfloat(self):
         return Expression(self, 'float')
+    def __eq__(self, other):
+        if type(other) != self.__class__:
+            return False
+        return (self.a == other.a and
+                self.b == other.b and
+                self.op == other.op)
     def __str__(self):
         if self.b == None:
             if self.op == 'literal':
@@ -273,6 +279,8 @@ class Expression:
             else:
                 return self.__class__(self.evaluate(), 'literal')
 
+        # a and b are fully simplified at this point
+
         if self.op == '^':
             # Power rules
             if b == 0:
@@ -285,6 +293,16 @@ class Expression:
                     return b
                 else:
                     return self.__class__(b, 'literal')
+            elif type(b) == int:
+                # can only roll out if int is power
+                # roll it out for further simplification
+                expr = a
+                for i in range(b - 1):
+                    expr *= a
+                expr2 = expr.simplify()
+                if expr2 != expr:
+                    # only return the expression if it's more simple then what we have now
+                    return expr2
         elif self.op == '*':
             # Multiplication rules
             if b == 0 or a == 0:
@@ -302,6 +320,10 @@ class Expression:
                     return b
                 else:
                     return self.__class__(b, 'literal')
+            # try a complex multiplication of everything, then attempt simplification
+            # we know that at least a or b is an expression with a variable because constants
+            # have already been simplified.
+            
         elif self.op == '+':
             # Addition rules
             if b == 1:
