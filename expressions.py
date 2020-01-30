@@ -277,7 +277,7 @@ class Expression:
             if gen_num:
                 return self.evaluate()
             else:
-                return self.__class__(self.evaluate(), 'literal')
+                return Expression(self.evaluate(), 'literal')
 
         # a and b are fully simplified at this point
 
@@ -287,12 +287,12 @@ class Expression:
                 if gen_num:
                     return 1
                 else:
-                    return self.__class__(1, 'literal')
+                    return Expression(1, 'literal')
             elif b == 1:
                 if gen_num or not is_num(b):
                     return b
                 else:
-                    return self.__class__(b, 'literal')
+                    return Expression(b, 'literal')
             elif type(b) == int:
                 # can only roll out if int is power
                 # roll it out for further simplification
@@ -309,17 +309,17 @@ class Expression:
                 if gen_num:
                     return 0
                 else:
-                    return self.__class__(0, 'literal')
+                    return Expression(0, 'literal')
             elif b == 1:
                 if gen_num or not is_num(a):
                     return a
                 else:
-                    return self.__class__(a, 'literal')
+                    return Expression(a, 'literal')
             elif a == 1:
                 if gen_num or not is_num(b):
                     return b
                 else:
-                    return self.__class__(b, 'literal')
+                    return Expression(b, 'literal')
             # try a complex multiplication of everything, then attempt simplification
             # we know that at least a or b is an expression with a variable because constants
             # have already been simplified.
@@ -330,40 +330,40 @@ class Expression:
                 if gen_num or not is_num(a):
                     return a
                 else:
-                    return self.__class__(a, 'literal')
+                    return Expression(a, 'literal')
             elif a == 1:
                 if gen_num or not is_num(b):
                     return b
                 else:
-                    return self.__class__(b, 'literal')
+                    return Expression(b, 'literal')
         elif self.op == '-':
             # Subtraction rules
             if b == 1:
                 if gen_num or not is_num(a):
                     return a
                 else:
-                    return self.__class__(a, 'literal')
+                    return Expression(a, 'literal')
             elif a == 1:
                 if gen_num or not is_num(b):
                     return b
                 else:
-                    return self.__class__(b, 'literal')
+                    return Expression(b, 'literal')
         elif self.op == '/':
             # Division rules
             if a == 0:
                 if gen_num:
                     return 0
                 else:
-                    return self.__class__(0, 'literal')
+                    return Expression(0, 'literal')
             elif b == 1:
                 if gen_num or not is_num(a):
                     return a
                 else:
-                    return self.__class__(a, 'literal')
+                    return Expression(a, 'literal')
 
         
         # Generate final output
         if a != self.a or b != self.b:
-            return self.__class__(a, self.op, b)
+            return Expression(a, self.op, b)
         else:
             return self
