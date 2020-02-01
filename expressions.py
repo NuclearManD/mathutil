@@ -11,14 +11,6 @@ class Polynomial:
         if type(q) in [float, int]:
             self.offset = 0
             self.coefs = [q]
-        elif type(q) == str:
-            # TODO: make this better
-            if q[-1] == '@':
-                self.offset = -1
-                self.coefs = [float(q[:-1])]
-            elif q[-1] == 'I':
-                self.offset = 1
-                self.coefs = [float(q[:-1])]
         elif type(q) == tuple:
             self.offset = q[0]
             self.coefs = q[1].copy()

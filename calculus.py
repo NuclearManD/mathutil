@@ -1,5 +1,5 @@
 #import numpy
-from expressions import *
+from .expressions import *
 from numbers import *
 
 def derive_x(expr, x, give_partial = False):

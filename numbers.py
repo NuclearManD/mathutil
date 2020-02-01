@@ -1,4 +1,4 @@
-import expressions
+from . import expressions
 
 
 class NumInfinite(expressions.Polynomial):
@@ -19,7 +19,28 @@ class NumInfinite(expressions.Polynomial):
     # 8I + 2I**2
     # coefs: [8, 2]
     # offset: 1
-    
+    def __init__(self, q = 0):
+        if type(q) in [float, int]:
+            self.offset = 0
+            self.coefs = [q]
+        elif type(q) == str:
+            # TODO: make this better
+            if q[-1] == '@':
+                self.offset = -1
+                self.coefs = [float(q[:-1])]
+            elif q[-1] == 'I':
+                self.offset = 1
+                self.coefs = [float(q[:-1])]
+        elif type(q) == tuple:
+            self.offset = q[0]
+            self.coefs = q[1].copy()
+            self.clean()
+        elif type(q) == self.__class__:
+            self.offset = q.offset
+            self.coefs = q.coefs.copy()
+            self.clean()
+        assert hasattr(self, 'coefs')
+        assert hasattr(self, 'offset')
     def resolve(self):
         self.clean()
         degree = self.degree()
