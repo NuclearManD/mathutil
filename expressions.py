@@ -224,17 +224,29 @@ class Expression:
             b = b.copy()
         return self.__class__(a, self.op, b)
     def __add__(self, b):
-        return Expression(self, '+', b)
+        if isinstance(b, Expression):
+            return Sum([self, b], 0)
+        else:
+            return Sum([self], b)
     def __radd__(self, b):
-        return Expression(b, '+', self)
+        if isinstance(b, Expression):
+            return Sum([self, b], 0)
+        else:
+            return Sum([self], b)
+    def __sub__(self, b):
+        if isinstance(b, Expression):
+            return Sum([self, -b], 0)
+        else:
+            return Sum([self], -b)
+    def __rsub__(self, b):
+        if isinstance(b, Expression):
+            return -Sum([self, -b], 0)
+        else:
+            return -Sum([self], -b)
     def __mul__(self, b):
         return Expression(self, '*', b)
     def __rmul__(self, b):
         return Expression(b, '*', self)
-    def __sub__(self, b):
-        return Expression(self, '-', b)
-    def __rsub__(self, b):
-        return Expression(b, '-', self)
     def __truediv__(self, b):
         return Expression(self, '/', b)
     def __rtruediv__(self, b):
@@ -293,7 +305,7 @@ class Expression:
                     return b
                 else:
                     return Expression(b, 'literal')
-            elif type(b) == int:
+            elif type(b) == int and (is_num(a) or isinstance(a, Expression)):
                 # can only roll out if int is power
                 # roll it out for further simplification
                 expr = a
@@ -367,3 +379,71 @@ class Expression:
             return Expression(a, self.op, b)
         else:
             return self
+class Sum(Expression):
+    def __init__(self, items, const = 0):
+        self.items = items.copy()
+        self.const = const
+    def resolve(self, **kwargs):
+        total = 0
+        for i in self.items:
+            if isinstance(i, Expression):
+                total += i.resolve()
+            else:
+                total += i
+        return total
+    def __add__(self, b):
+        if isinstance(b, Expression):
+            return Sum(self.items + [b], self.const)
+        else:
+            return Sum(self.items, self.const + b)
+    def __radd__(self, b):
+        if isinstance(b, Expression):
+            return Sum(self.items + [b], self.const)
+        else:
+            return Sum(self.items, self.const + b)
+    def __sub__(self, b):
+        if isinstance(b, Expression):
+            return Sum(self.items + [-b], self.const)
+        else:
+            return Sum(self.items, self.const - b)
+    def __rsub__(self, b):
+        if isinstance(b, Expression):
+            return -Sum(self.items + [-b], self.const)
+        else:
+            return -Sum(self.items, self.const - b)
+    def __neg__(self):
+        return Expression(self, '-')
+    def __eq__(self, other):
+        if type(other) != self.__class__:
+            return False
+        if self.const != other.const:
+            return False
+        if len(self.items) != other.items:
+            return False
+        for i in range(len(self.items)):
+            if self.items[i] != other.items[i]:
+                return False
+        return True
+    def __str__(self):
+        s = '('
+        for i in self.items:
+            s += str(i) + ' + '
+        return s + str(self.const) + ')'
+    def simplify(self, gen_num = False):
+        const = self.const
+        items = []
+        for i in self.items:
+            if isinstance(i, Expression):
+                i = i.simplify(True)
+            if is_num(i):
+                const += i
+            else:
+                items.append(i)
+        if len(items) == 0:
+            if gen_num:
+                return const
+            else:
+                return Expression(const, 'literal')
+        else:
+            return Sum(items, const)
+    
