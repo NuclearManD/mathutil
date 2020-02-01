@@ -1,6 +1,6 @@
 from . import expressions as ex
 from . import calculus as calc
-from . import numbers as num
+from . import mnumbers as num
 
 def test_is_num():
     assert ex.is_num(2)
