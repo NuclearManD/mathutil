@@ -410,7 +410,7 @@ class Sum(Expression):
             return False
         if self.const != other.const:
             return False
-        if len(self.items) != other.items:
+        if len(self.items) != len(other.items):
             return False
         for i in range(len(self.items)):
             if self.items[i] != other.items[i]:
