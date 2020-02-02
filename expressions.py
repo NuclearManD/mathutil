@@ -191,6 +191,8 @@ class Expression:
             return a
         else:
             raise Exception("Invalid operator encounterd in Expression.eval()")
+    def map(self, **kwargs):
+        return self.evaluate(**kwargs)
     def insert(self, var, val):
         a = self.a
         if a == var:
@@ -375,11 +377,11 @@ class Sum(Expression):
     def __init__(self, items, const = 0):
         self.items = items.copy()
         self.const = const
-    def resolve(self, **kwargs):
+    def evaluate(self, **kwargs):
         total = 0
         for i in self.items:
             if isinstance(i, Expression):
-                total += i.resolve()
+                total += i.evaluate(**kwargs)
             else:
                 total += i
         return total
@@ -438,4 +440,3 @@ class Sum(Expression):
                 return Expression(const, 'literal')
         else:
             return Sum(items, const)
-    
