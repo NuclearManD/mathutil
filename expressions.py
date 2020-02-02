@@ -268,7 +268,7 @@ class Expression:
     def __str__(self):
         if self.b == None:
             if self.op == 'literal':
-                return str(self.a)
+                return str(round(self.a, 3))
             return self.op + str(self.a)
         else:
             return '(' + str(self.a) + self.op + str(self.b) + ')'
@@ -422,7 +422,7 @@ class Sum(Expression):
         s = '('
         for i in self.items:
             s += str(i) + ' + '
-        return s + str(self.const) + ')'
+        return s + str(round(self.const,3)) + ')'
     def simplify(self, gen_num = False):
         const = self.const
         items = []
