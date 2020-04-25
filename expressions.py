@@ -1,5 +1,9 @@
 
+import math
+
 def is_num(x):
+    if type(x) == str:
+        return False
     if type(x) in [int, float]:
         return True
     if hasattr(x, '__int__') and hasattr(x, '__float__'):
@@ -179,6 +183,8 @@ class Expression:
             return a * b
         elif op == '/':
             return a / b
+        elif op == '%':
+            return a % b
         elif op == '//':
             return a // b
         elif op == '^':
@@ -189,6 +195,8 @@ class Expression:
             return float(a)
         elif op == 'literal':
             return a
+        elif op == 'sqrt':
+            return math.sqrt(a)
         else:
             raise Exception("Invalid operator encounterd in Expression.eval()")
     def map(self, **kwargs):
@@ -280,10 +288,10 @@ class Expression:
         if isinstance(b, Expression):
             b = b.simplify(True)
         if is_num(a) and is_num(b):
+            #print(a, b)
             if gen_num:
                 return self.evaluate()
-            else:
-                return Expression(self.evaluate(), 'literal')
+            return Expression(self.evaluate(), 'literal')
 
         # a and b are fully simplified at this point
 
@@ -385,6 +393,14 @@ class Sum(Expression):
             else:
                 total += i
         return total
+    def copy(self):
+        li = []
+        for i in self.items:
+            if isinstance(i, Expression):
+                li.append(i.copy())
+            else:
+                li.append(i)
+        return self.__class__(li, self.const)
     def __add__(self, b):
         if isinstance(b, Expression):
             return Sum(self.items + [b], self.const)
